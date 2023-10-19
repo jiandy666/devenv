@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# config
+NAME=lab-zookeeper
+IMAGE=bitnami/zookeeper:3.4.14
+
+docker run -it --rm \
+	--network lab-tier \
+	$IMAGE \
+	zkCli.sh -server $NAME:2181 \
+	$@

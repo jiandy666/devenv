@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ ! "$(docker ps -a | grep lab-mysql)" ]; then
+
+	docker run -v ./data:/var/lib/mysql -p 3306:3306 --name lab-mysql \
+		-e MYSQL_ROOT_PASSWORD=123 \
+		-e MYSQL_USER=aj \
+		-e MYSQL_PASSWORD=123 \
+		-d mysql:8.0.34
+
+else
+
+	docker start lab-mysql
+
+fi

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# config
+NAME=lab-kafka
+IMAGE=bitnami/kafka:2.8.1
+# IMAGE=bitnami/kafka:3.6.0
+
+
+# --zookeeper not working after 3.x
+# --bootstrap-server not support path (.../lab-kafka)
+
+docker run -it --rm \
+	--network lab-tier \
+	$IMAGE \
+	$@
+
+
+	# --zookeeper lab-zookeeper:2181/lab-kafka
+	# --bootstrap-server lab-zookeeper:2181/lab-kafka

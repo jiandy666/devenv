@@ -1,0 +1,19 @@
+#!/bin/sh
+
+# 
+# Image: https://hub.docker.com/_/redis
+#
+
+if [ ! "$(docker ps -a | grep lab-redis)" ]; then
+
+	docker run -p 6379:6379 -d --name lab-redis \
+		-v ./conf:/usr/local/etc/redis \
+		-v ./data:/data \
+		redis:6.2.13-alpine \
+		redis-server /usr/local/etc/redis/redis.conf
+
+else
+
+	docker start lab-redis
+
+fi

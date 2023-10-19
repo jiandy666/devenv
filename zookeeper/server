@@ -1,0 +1,48 @@
+#!/bin/bash
+
+# 
+# Image:
+#  * https://hub.docker.com/r/bitnami/zookeeper
+#
+
+# env
+BASEDIR=$(pwd)/$(dirname "$0")
+
+# config
+NAME=lab-zookeeper
+IMAGE=bitnami/zookeeper:3.4.14
+DATA_DIR=$BASEDIR/data
+CONF_DIR=$BASEDIR/conf
+
+
+function create_dir() {
+	if [ ! -e $DATA_DIR ]; then
+		mkdir $DATA_DIR
+	fi
+	local data_owner=$(dirname $DATA_DIR | ls -n | grep data | awk '{print $3}')
+	if [ ! $data_owner -eq 1001 ]; then
+		# persisting data dir owner need be UID 1001
+		#   see  https://hub.docker.com/r/bitnami/zookeeper  #Persisting your data
+		sudo chown 1001 $DATA_DIR
+	fi
+}
+
+
+function start_impl() {
+	create_dir
+
+		# -v $CONF_DIR/zoo.cfg:/opt/bitnami/zookeeper/conf/zoo.cfg \
+	docker run -d \
+		--name $NAME \
+		-v $DATA_DIR:/bitnami/zookeeper \
+		--network lab-tier \
+		-e ALLOW_ANONYMOUS_LOGIN=yes \
+		$IMAGE
+}
+
+
+# using docker script template
+source $BASEDIR/../.lib/docker_template.sh \
+	--name=$NAME \
+	--start-impl=start_impl \
+	$@

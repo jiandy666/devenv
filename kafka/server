@@ -1,0 +1,51 @@
+#!/bin/bash
+
+# 
+# Image:
+#  * https://hub.docker.com/r/bitnami/kafka
+#
+
+# env
+BASEDIR=$(pwd)/$(dirname "$0")
+
+# config
+NAME=lab-kafka
+IMAGE=bitnami/kafka:2.8.1
+# IMAGE=bitnami/kafka:3.6.0
+DATA_DIR=$BASEDIR/data
+CONF_DIR=$BASEDIR/conf
+
+
+function create_dir() {
+	if [ ! -e $DATA_DIR ]; then
+		mkdir $DATA_DIR
+	fi
+	local data_owner=$(dirname $DATA_DIR | ls -n | grep data | awk '{print $3}')
+	if [ ! $data_owner -eq 1001 ]; then
+		# persisting data dir owner need be UID 1001
+		#   see  https://hub.docker.com/r/bitnami/zookeeper  #Persisting your data
+		sudo chown 1001 $DATA_DIR
+	fi
+}
+
+
+function start_impl() {
+	create_dir
+
+	docker run -d \
+		--name $NAME \
+		--hostname $NAME \
+		--network lab-tier \
+		-v $DATA_DIR:/bitnami/kafka \
+		-e KAFKA_BROKER_ID=1 \
+		-e KAFKA_ZOOKEEPER_CONNECT=lab-zookeeper:2181/$NAME \
+		-e ALLOW_PLAINTEXT_LISTENER=yes \
+		$IMAGE
+}
+
+
+# using docker script template
+source $BASEDIR/../.lib/docker_template.sh \
+	--name=$NAME \
+	--start-impl=start_impl \
+	$@
